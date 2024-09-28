@@ -20,13 +20,13 @@ bool evaluateExpression(int &sum, int num, Operator op, int negNum)
     case DIVIDE:
         if (num == 0)
         {
-            std::cerr << "Error: Division by zero!" << std::endl;
+            cerr << "Error: Division by zero | ";
             return false;
         }
         sum /= num * negNum;
         break;
     default:
-        std::cerr << "Unknown operator!" << std::endl;
+        cerr << "Unknown operator | ";
         return false;
     }
     return true;
@@ -51,37 +51,32 @@ bool evaluate(const char *expression, int &result)
         }
 
         // Set the operator
-        if (*ptr == '*')
+        switch (*ptr)
         {
+        case '*':
             op = MULTIPLY;
             ++ptr;
-            continue;
-        }
-        if (*ptr == '/')
-        {
+            break;
+        case '/':
             op = DIVIDE;
             ++ptr;
-            continue;
-        }
-        if (*ptr == '+')
-        {
+            break;
+        case '+':
             op = ADD;
             ++ptr;
-            continue;
-        }
-        if (*ptr == '-')
-        {
-            if (isdigit(*(ptr + 1))) // If the next character is a digit, it's a negative number
+            break;
+        case '-':
+            if (isdigit(*(ptr + 1))) // Handle negative number
             {
                 negNum = -1;
                 ++ptr;
             }
-            else // Otherwise, it's a subtraction operation
+            else // Handle subtraction operation
             {
                 op = SUBTRACT;
                 ++ptr;
-                continue;
             }
+            break;
         }
 
         int num = 0;
@@ -103,7 +98,7 @@ bool evaluate(const char *expression, int &result)
 
             if (parenStack != 0)
             { // If there are unmatched parentheses
-                std::cerr << "Error: Mismatched parentheses!" << std::endl;
+                cerr << "Error: Mismatched parentheses | ";
                 return false;
             }
 
@@ -111,13 +106,22 @@ bool evaluate(const char *expression, int &result)
             {
                 return false;
             }
+            else
+            {
+                ++ptr;
+            }
 
-            cout << "Inner result: " << innerResult << endl;
             num = innerResult;
             negNum = 1;
-            op = ADD;
-            ++ptr;
-            continue;
+        }
+        else if (*ptr == ')') // Handle closing parentheses without a match
+        {
+            if (parenStack == 0)
+            {
+                cerr << "Error: Unmatched closing parenthesis | ";
+                return false;
+            }
+            return false;
         }
 
         // Parse the number
@@ -127,27 +131,17 @@ bool evaluate(const char *expression, int &result)
             ++ptr;
         }
 
-        // Evaluate the expression with the parsed number
         if (num != 0 || negNum == -1)
         { // Check if the number is valid or it's a negative number
             evaluateExpression(sum, num, op, negNum);
         }
 
-        cout << "Num  " << num << " | Operator " << op << " | NegNumber " << negNum << " | sum " << sum << endl;
-
         if (*ptr == ')')
         {
-            cout << sum << endl;
+            result = sum;
             return true;
         }
-
         negNum = 1;
-    }
-
-    if (parenStack > 0)
-    {
-        std::cerr << "Error: Mismatched parentheses!" << std::endl;
-        return false;
     }
 
     result = sum;
@@ -161,7 +155,7 @@ int main()
         int result = 0;
         if (evaluate(testExpressions[i], result))
         {
-            cout << "Result: " << result << " | Test Expression " << i + 1 << ": " << testExpressions[i] << endl;
+            cout << "Result: " << result << "\t|\tTest Expression " << i + 1 << ": " << testExpressions[i] << endl;
         }
         else
         {
