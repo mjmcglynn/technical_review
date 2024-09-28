@@ -147,5 +147,6 @@ int main()
             cout << "Invalid expression: " << testExpressions[i] << endl;
         }
     }
+    system("pause"); // Adding incase exe is run
     return 0;
 }
